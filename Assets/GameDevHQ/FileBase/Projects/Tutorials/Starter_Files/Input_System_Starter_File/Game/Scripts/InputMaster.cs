@@ -24,8 +24,11 @@ public class InputMaster : MonoBehaviour
     private InputControl _inputControl;
 
     public static Action<Vector3> PlayerMove;
-    public static Action<bool> PlayerInteract;
-    public static Action<bool> PlayerAction;
+    public static Action PlayerInteract;
+    public static Action PlayerInteractCancel;
+
+    public static Action PlayerAction;
+    public static Action PlayerActionCancel;
 
     private void Awake()
     {
@@ -59,19 +62,19 @@ public class InputMaster : MonoBehaviour
     }
     private void PlayerInteractPerformed(InputAction.CallbackContext obj)
     {
-        PlayerInteract?.Invoke(true);
+        PlayerInteract?.Invoke();
     }
     private void PlayerInteractCanceled(InputAction.CallbackContext obj)
     {
-        PlayerInteract?.Invoke(false);
+        PlayerInteractCancel?.Invoke();
     }
     private void PlayerActionPerformed(InputAction.CallbackContext obj)
     {
-        PlayerAction?.Invoke(true);
+        PlayerAction?.Invoke();
     }
     private void PlayerActionCanceled(InputAction.CallbackContext obj)
     {
-        PlayerAction?.Invoke(false);
+        PlayerActionCancel?.Invoke();
     }
 
         // Update is called once per frame
