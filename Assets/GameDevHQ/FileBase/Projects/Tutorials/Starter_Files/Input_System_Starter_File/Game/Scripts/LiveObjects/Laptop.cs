@@ -27,8 +27,12 @@ namespace Game.Scripts.LiveObjects
         {
             InteractableZone.onHoldStarted += InteractableZone_onHoldStarted;
             InteractableZone.onHoldEnded += InteractableZone_onHoldEnded;
+
+            InputMaster.CamSwitch += SwitchCam;
+            InputMaster.CamEnd += ExitCam;
         }
 
+        /*
         private void Update()
         {
             if (_hacked == true)
@@ -55,6 +59,30 @@ namespace Game.Scripts.LiveObjects
                 }
             }
         }
+        */
+
+        void SwitchCam()
+        {
+            if (_hacked)
+            {
+                var previous = _activeCamera;
+                _activeCamera++;
+
+
+                if (_activeCamera >= _cameras.Length)
+                    _activeCamera = 0;
+
+
+                _cameras[_activeCamera].Priority = 11;
+                _cameras[previous].Priority = 9;
+            }
+        }
+        void ExitCam()
+        {
+            _hacked = false;
+            onHackEnded?.Invoke();
+            ResetCameras();
+        }
 
         void ResetCameras()
         {
@@ -68,9 +96,11 @@ namespace Game.Scripts.LiveObjects
         {
             if (zoneID == 3 && _hacked == false) //Hacking terminal
             {
+                Debug.Log("holdstart");
                 _progressBar.gameObject.SetActive(true);
                 StartCoroutine(HackingRoutine());
                 onHackComplete?.Invoke();
+
             }
         }
 
@@ -78,6 +108,8 @@ namespace Game.Scripts.LiveObjects
         {
             if (zoneID == 3) //Hacking terminal
             {
+                Debug.Log("holdend");
+
                 if (_hacked == true)
                     return;
 
@@ -85,17 +117,20 @@ namespace Game.Scripts.LiveObjects
                 _progressBar.gameObject.SetActive(false);
                 _progressBar.value = 0;
                 onHackEnded?.Invoke();
+
             }
         }
 
         
         IEnumerator HackingRoutine()
         {
+            Debug.Log("coroutine start");
             while (_progressBar.value < 1)
             {
                 _progressBar.value += Time.deltaTime / _hackTime;
                 yield return new WaitForEndOfFrame();
             }
+            Debug.Log("coroutine end");
 
             //successfully hacked
             _hacked = true;

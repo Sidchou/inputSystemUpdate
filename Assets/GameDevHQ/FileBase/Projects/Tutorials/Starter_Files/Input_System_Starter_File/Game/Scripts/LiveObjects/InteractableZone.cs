@@ -160,6 +160,8 @@ namespace Game.Scripts.LiveObjects
         {
             if (_inZone == true)
             {
+                Debug.Log("keyDown");
+
                 switch (_zoneType)
                 {
                     case ZoneType.Collectable:
@@ -171,9 +173,8 @@ namespace Game.Scripts.LiveObjects
                         }
                         break;
                     case ZoneType.HoldAction:
-                            if (_inHoldState == false)
+                        if (_inHoldState == false )
                             {
-                                _inHoldState = true;
                                 PerformHoldAction();
                             }
                         break;
@@ -190,10 +191,12 @@ namespace Game.Scripts.LiveObjects
                 }
             }
         }
-        private void CancelInteract()
+private void CancelInteract()
         {
             if (_zoneType == ZoneType.HoldAction && _inZone == true)
             {
+                Debug.Log("keyUP");
+
                 _inHoldState = false;
                 onHoldEnded?.Invoke(_zoneID);
             } 
