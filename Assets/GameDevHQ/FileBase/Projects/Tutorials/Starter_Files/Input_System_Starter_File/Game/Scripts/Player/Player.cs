@@ -13,6 +13,7 @@ namespace Game.Scripts.Player
         private Animator _anim;
         [SerializeField]
         private float _speed = 5.0f;
+        private Vector3 _move;
         private bool _playerGrounded;
         [SerializeField]
         private Detonator _detonator;
@@ -25,6 +26,7 @@ namespace Game.Scripts.Player
 
         private void OnEnable()
         {
+            /*
             InteractableZone.onZoneInteractionComplete += InteractableZone_onZoneInteractionComplete;
             Laptop.onHackComplete += ReleasePlayerControl;
             Laptop.onHackEnded += ReturnPlayerControl;
@@ -33,7 +35,10 @@ namespace Game.Scripts.Player
             Forklift.onDriveModeEntered += HidePlayer;
             Drone.OnEnterFlightMode += ReleasePlayerControl;
             Drone.onExitFlightmode += ReturnPlayerControl;
-        } 
+            */
+            InputMaster.PlayerMove += MovementInput;
+
+        }
 
         private void Start()
         {
@@ -50,12 +55,16 @@ namespace Game.Scripts.Player
 
         private void Update()
         {
+            /*
             if (_canMove == true)
-                CalcutateMovement();
-
+            {
+                CalcutateMovementLagacy();
+            }
+            */
+            CalcutateMovement();
         }
-
-        private void CalcutateMovement()
+        /*
+        private void CalcutateMovementLagacy()
         {
             _playerGrounded = _controller.isGrounded;
             float h = Input.GetAxisRaw("Horizontal");
@@ -80,8 +89,38 @@ namespace Game.Scripts.Player
             _controller.Move(velocity * Time.deltaTime);                      
 
         }
+        */
+        private void MovementInput(Vector3 move)
+        {
+            _move = move;
+        }
+        private void CalcutateMovement()
+        {
+            _playerGrounded = _controller.isGrounded;
+            float h = _move.x;
+            float v = _move.y;
 
-        private void InteractableZone_onZoneInteractionComplete(InteractableZone zone)
+            transform.Rotate(transform.up, h);
+
+            var direction = transform.forward * v;
+            var velocity = direction * _speed;
+
+
+            _anim.SetFloat("Speed", Mathf.Abs(velocity.magnitude));
+
+
+            if (_playerGrounded)
+                velocity.y = 0f;
+            if (!_playerGrounded)
+            {
+                velocity.y += -20f * Time.deltaTime;
+            }
+
+            _controller.Move(velocity * Time.deltaTime);
+
+        }
+
+            private void InteractableZone_onZoneInteractionComplete(InteractableZone zone)
         {
             switch(zone.GetZoneID())
             {
