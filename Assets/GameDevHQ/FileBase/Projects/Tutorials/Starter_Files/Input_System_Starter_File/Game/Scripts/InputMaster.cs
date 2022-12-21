@@ -35,6 +35,12 @@ public class InputMaster : MonoBehaviour
     public static Action CamSwitch;
     public static Action CamEnd;
 
+    public static Action<Vector2> DroneTilt;
+    public static Action<Vector2> DroneMove;
+    public static Action<float> DroneLift;
+    public static Action DroneExit;
+
+
     private void Awake()
     {
         _instance = this;
@@ -48,11 +54,14 @@ public class InputMaster : MonoBehaviour
 
         Laptop.onHackComplete += CamInit;
         Laptop.onHackEnded += PlayerInit;
+        Drone.OnEnterFlightMode += DroneInit;
+        Drone.onExitFlightmode += PlayerInit;
     }
     public void PlayerInit()
     {
         _inputControl.Player.Enable();
         _inputControl.Laptop.Disable();
+        _inputControl.Drone.Disable();
 
         _inputControl.Player.Move.performed += PlayerMovePerformed;
         _inputControl.Player.Move.canceled += PlayerMoveCanceled;
@@ -89,6 +98,8 @@ public class InputMaster : MonoBehaviour
     {
         _inputControl.Player.Disable();
         _inputControl.Laptop.Enable();
+        _inputControl.Drone.Disable();
+
         _inputControl.Laptop.NextCam.performed += NextCamPerformed;
         _inputControl.Laptop.NextCam.canceled += NextCamCanceled;
 
@@ -105,6 +116,58 @@ public class InputMaster : MonoBehaviour
     private void CamEscapePerformed(InputAction.CallbackContext obj)
     {
         CamEnd?.Invoke();
+    }
+
+    public void DroneInit()
+    {
+        Debug.Log("drone");
+        _inputControl.Player.Disable();
+        _inputControl.Laptop.Disable();
+        _inputControl.Drone.Enable();
+
+        _inputControl.Drone.Tilt.performed += DroneTiltPerformed;
+        _inputControl.Drone.Tilt.canceled += DroneTiltCanceled;
+
+        _inputControl.Drone.Move.performed += DroneMovePerformed;
+        _inputControl.Drone.Move.canceled += DroneMoveCanceled;
+
+        _inputControl.Drone.Lift.performed += DroneLiftPerformed;
+        _inputControl.Drone.Lift.canceled += DroneLiftCanceled;
+
+        _inputControl.Drone.Exit.performed += DroneExitPerformed;
+
+    }
+
+    private void DroneTiltPerformed(InputAction.CallbackContext obj)
+    {
+
+        DroneTilt?.Invoke(_inputControl.Drone.Tilt.ReadValue<Vector2>());
+    }
+    private void DroneTiltCanceled(InputAction.CallbackContext obj)
+    {
+
+        DroneTilt?.Invoke(Vector2.zero);
+    }
+    private void DroneMovePerformed(InputAction.CallbackContext obj)
+    {
+        DroneMove?.Invoke(_inputControl.Drone.Move.ReadValue<Vector2>());
+    }
+    private void DroneMoveCanceled(InputAction.CallbackContext obj)
+    {
+        DroneMove?.Invoke(Vector2.zero);
+    }
+
+    private void DroneLiftPerformed(InputAction.CallbackContext obj)
+    {
+        DroneLift?.Invoke(_inputControl.Drone.Lift.ReadValue<float>());
+    }
+    private void DroneLiftCanceled(InputAction.CallbackContext obj)
+    {
+        DroneLift?.Invoke(0);
+    }
+    private void DroneExitPerformed(InputAction.CallbackContext obj)
+    {
+        DroneExit?.Invoke();
     }
     // Update is called once per frame
     void Update()

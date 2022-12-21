@@ -18,6 +18,8 @@ namespace Game.Scripts.LiveObjects
         private Rigidbody _rigidbody;
         [SerializeField]
         private float _speed = 5f;
+        private Vector3 _lift =Vector3.zero;
+        private float _rot;
         private bool _inFlightMode = false;
         [SerializeField]
         private Animator _propAnim;
@@ -33,6 +35,11 @@ namespace Game.Scripts.LiveObjects
         private void OnEnable()
         {
             InteractableZone.onZoneInteractionComplete += EnterFlightMode;
+            InputMaster.DroneLift += LiftMove;
+            InputMaster.DroneTilt += CalculateTilt;
+            InputMaster.DroneMove += Move;
+            InputMaster.DroneExit += ExitFlightMode;
+
         }
 
         private void EnterFlightMode(InteractableZone zone)
@@ -49,36 +56,72 @@ namespace Game.Scripts.LiveObjects
         }
 
         private void ExitFlightMode()
-        {            
+        {
+            _inFlightMode = false;
+            onExitFlightmode?.Invoke();
+
             _droneCam.Priority = 9;
             _inFlightMode = false;
             UIManager.Instance.DroneView(false);            
         }
 
-        private void Update()
-        {
-            if (_inFlightMode)
-            {
-                CalculateTilt();
-                CalculateMovementUpdate();
-
-                if (Input.GetKeyDown(KeyCode.Escape))
-                {
-                    _inFlightMode = false;
-                    onExitFlightmode?.Invoke();
-                    ExitFlightMode();
-                }
+        /*
+       private void Update()
+       {
+           if (_inFlightMode)
+           {
+               CalculateTilt();
+               CalculateMovementUpdate();
+              
+               if (Input.GetKeyDown(KeyCode.Escape))
+               {
+                   _inFlightMode = false;
+                   onExitFlightmode?.Invoke();
+                   ExitFlightMode();
+               }
+             
             }
         }
+*/
+        private void Update()
+        {
+            CalculateMovementUpdate();
 
+        }
         private void FixedUpdate()
         {
             _rigidbody.AddForce(transform.up * (9.81f), ForceMode.Acceleration);
-            if (_inFlightMode)
-                CalculateMovementFixedUpdate();
+            if (_inFlightMode) {
+                CalculateLiftMovementFixedUpdate();
+            } 
         }
+        private void Move(Vector2 move)
+        {
 
+            _rot = move.x;
+        }
         private void CalculateMovementUpdate()
+        {
+                var tempRot = transform.localRotation.eulerAngles;
+                tempRot.y += _speed / 3 * _rot;
+                transform.localRotation = Quaternion.Euler(tempRot);
+
+        }
+        private void CalculateLiftMovementFixedUpdate()
+        {
+            _rigidbody.AddForce(_lift, ForceMode.Acceleration);
+        }
+        private void LiftMove(float l)
+        {
+            _lift = transform.up * _speed *l;
+        }
+   
+        private void CalculateTilt(Vector2 tilt )
+        {
+            transform.rotation = Quaternion.Euler(tilt.y*30, transform.localRotation.eulerAngles.y, tilt.x * -30);
+        }
+        /*
+                 private void CalculateMovementUpdate()
         {
             if (Input.GetKey(KeyCode.LeftArrow))
             {
@@ -93,8 +136,7 @@ namespace Game.Scripts.LiveObjects
                 transform.localRotation = Quaternion.Euler(tempRot);
             }
         }
-
-        private void CalculateMovementFixedUpdate()
+            private void CalculateMovementFixedUpdate()
         {
             
             if (Input.GetKey(KeyCode.Space))
@@ -120,7 +162,7 @@ namespace Game.Scripts.LiveObjects
             else 
                 transform.rotation = Quaternion.Euler(0, transform.localRotation.eulerAngles.y, 0);
         }
-
+        */
         private void OnDisable()
         {
             InteractableZone.onZoneInteractionComplete -= EnterFlightMode;

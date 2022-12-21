@@ -48,7 +48,7 @@ namespace Game.Scripts.LiveObjects
 
         private bool _inHoldState = false;
 
-        private static int _currentZoneID = 0;
+        private static int _currentZoneID = 4;
         public static int CurrentZoneID
         { 
             get 
@@ -160,8 +160,6 @@ namespace Game.Scripts.LiveObjects
         {
             if (_inZone == true)
             {
-                Debug.Log("keyDown");
-
                 switch (_zoneType)
                 {
                     case ZoneType.Collectable:
@@ -195,8 +193,6 @@ private void CancelInteract()
         {
             if (_zoneType == ZoneType.HoldAction && _inZone == true)
             {
-                Debug.Log("keyUP");
-
                 _inHoldState = false;
                 onHoldEnded?.Invoke(_zoneID);
             } 
