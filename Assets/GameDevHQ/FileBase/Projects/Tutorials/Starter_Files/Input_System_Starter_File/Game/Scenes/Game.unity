@@ -7033,6 +7033,7 @@ MonoBehaviour:
   _liftSpeed: 1
   _forkliftCam: {fileID: 972744896}
   _driverModel: {fileID: 1509951838}
+  _walkModel: {fileID: 359860631}
   _interactableZone: {fileID: 1277958656}
 --- !u!65 &402105200
 BoxCollider:

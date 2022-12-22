@@ -48,7 +48,7 @@ namespace Game.Scripts.LiveObjects
 
         private bool _inHoldState = false;
 
-        private static int _currentZoneID = 5;
+        private static int _currentZoneID = 0;
         public static int CurrentZoneID
         { 
             get 

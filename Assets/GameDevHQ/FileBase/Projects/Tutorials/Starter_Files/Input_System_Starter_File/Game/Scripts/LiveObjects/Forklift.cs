@@ -54,6 +54,7 @@ namespace Game.Scripts.LiveObjects
             _inDriveMode = false;
             _forkliftCam.Priority = 9;            
             _driverModel.SetActive(false);
+            _walkModel.transform.position = transform.position + transform.right * -1.2f;
             _walkModel.SetActive(true);
             onDriveModeExited?.Invoke();
             
