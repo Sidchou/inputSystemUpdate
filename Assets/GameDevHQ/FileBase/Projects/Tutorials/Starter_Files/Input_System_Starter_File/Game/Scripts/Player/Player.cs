@@ -39,6 +39,7 @@ namespace Game.Scripts.Player
             */
             InputMaster.PlayerMove += MovementInput;
 
+
         }
 
         private void Start()
@@ -147,12 +148,6 @@ namespace Game.Scripts.Player
             _canMove = true;
             _followCam.Priority = 10;
         }
-
-        private void HidePlayer()
-        {
-            _model.SetActive(false);
-        }
-               
         private void TriggerExplosive()
         {
             _detonator.TriggerExplosion();

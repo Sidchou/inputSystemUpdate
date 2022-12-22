@@ -96,7 +96,6 @@ namespace Game.Scripts.LiveObjects
         {
             if (zoneID == 3 && _hacked == false) //Hacking terminal
             {
-                Debug.Log("holdstart");
                 _progressBar.gameObject.SetActive(true);
                 StartCoroutine(HackingRoutine());
                 onHackComplete?.Invoke();
@@ -108,8 +107,6 @@ namespace Game.Scripts.LiveObjects
         {
             if (zoneID == 3) //Hacking terminal
             {
-                Debug.Log("holdend");
-
                 if (_hacked == true)
                     return;
 
@@ -124,14 +121,11 @@ namespace Game.Scripts.LiveObjects
         
         IEnumerator HackingRoutine()
         {
-            Debug.Log("coroutine start");
             while (_progressBar.value < 1)
             {
                 _progressBar.value += Time.deltaTime / _hackTime;
                 yield return new WaitForEndOfFrame();
             }
-            Debug.Log("coroutine end");
-
             //successfully hacked
             _hacked = true;
             _interactableZone.CompleteTask(3);

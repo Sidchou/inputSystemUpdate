@@ -1,3 +1,4 @@
+using Cinemachine;
 using Game.Scripts.LiveObjects;
 using System;
 using System.Collections;
@@ -5,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.Video;
 
 public class InputMaster : MonoBehaviour
 {
@@ -40,7 +42,9 @@ public class InputMaster : MonoBehaviour
     public static Action<float> DroneLift;
     public static Action DroneExit;
 
-
+    public static Action<Vector2> ForkliftMove;
+    public static Action<float> ForkliftLift;
+    public static Action ForkliftExit;
     private void Awake()
     {
         _instance = this;
@@ -56,12 +60,16 @@ public class InputMaster : MonoBehaviour
         Laptop.onHackEnded += PlayerInit;
         Drone.OnEnterFlightMode += DroneInit;
         Drone.onExitFlightmode += PlayerInit;
+        Forklift.onDriveModeEntered += ForkliftInit;
+        Forklift.onDriveModeExited += PlayerInit;
     }
     public void PlayerInit()
     {
         _inputControl.Player.Enable();
         _inputControl.Laptop.Disable();
         _inputControl.Drone.Disable();
+        _inputControl.Forklift.Disable();
+
 
         _inputControl.Player.Move.performed += PlayerMovePerformed;
         _inputControl.Player.Move.canceled += PlayerMoveCanceled;
@@ -99,6 +107,8 @@ public class InputMaster : MonoBehaviour
         _inputControl.Player.Disable();
         _inputControl.Laptop.Enable();
         _inputControl.Drone.Disable();
+        _inputControl.Forklift.Disable();
+
 
         _inputControl.Laptop.NextCam.performed += NextCamPerformed;
         _inputControl.Laptop.NextCam.canceled += NextCamCanceled;
@@ -120,10 +130,10 @@ public class InputMaster : MonoBehaviour
 
     public void DroneInit()
     {
-        Debug.Log("drone");
         _inputControl.Player.Disable();
         _inputControl.Laptop.Disable();
         _inputControl.Drone.Enable();
+        _inputControl.Forklift.Disable();
 
         _inputControl.Drone.Tilt.performed += DroneTiltPerformed;
         _inputControl.Drone.Tilt.canceled += DroneTiltCanceled;
@@ -168,6 +178,43 @@ public class InputMaster : MonoBehaviour
     private void DroneExitPerformed(InputAction.CallbackContext obj)
     {
         DroneExit?.Invoke();
+    }
+
+    public void ForkliftInit()
+    {
+        _inputControl.Player.Disable();
+        _inputControl.Laptop.Disable();
+        _inputControl.Drone.Disable();
+        _inputControl.Forklift.Enable();
+
+        _inputControl.Forklift.Move.performed += ForkliftMovePerformed;
+        _inputControl.Forklift.Move.canceled += ForkliftMoveCanceled;
+
+        _inputControl.Forklift.Lift.performed += ForkliftLiftPerformed;
+        _inputControl.Forklift.Lift.canceled += ForkliftLiftCanceled;
+
+        _inputControl.Forklift.Exit.performed += ForkliftExitPerformed;
+
+    }
+    private void ForkliftMovePerformed(InputAction.CallbackContext obj)
+    {
+        ForkliftMove?.Invoke(_inputControl.Forklift.Move.ReadValue<Vector2>());
+    }
+    private void ForkliftMoveCanceled(InputAction.CallbackContext obj)
+    {
+        ForkliftMove?.Invoke(Vector2.zero);
+    }
+    private void ForkliftLiftPerformed(InputAction.CallbackContext obj)
+    {
+        ForkliftLift?.Invoke(_inputControl.Forklift.Lift.ReadValue<float>());
+    }
+    private void ForkliftLiftCanceled(InputAction.CallbackContext obj)
+    {
+        ForkliftLift?.Invoke(0);
+    }
+    private void ForkliftExitPerformed(InputAction.CallbackContext obj)
+    {
+        ForkliftExit?.Invoke();
     }
     // Update is called once per frame
     void Update()
